@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VeliuxAI - Chat AI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1a0b2e 0%, #2a1045 50%, #3b1560 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .chat-container {
+            width: 100%;
+            max-width: 800px;
+            height: 90vh;
+            max-height: 700px;
+            background: rgba(30, 12, 55, 0.55);
+            backdrop-filter: blur(14px);
+            border-radius: 36px;
+            border: 1px solid rgba(180, 130, 255, 0.4);
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, rgba(100, 50, 180, 0.7), rgba(70, 30, 140, 0.8));
+            padding: 18px 24px;
+            text-align: center;
+            border-bottom: 1px solid rgba(210, 160, 255, 0.5);
+        }
+
+        .chat-header h1 {
+            font-size: 1.9rem;
+            background: linear-gradient(135deg, #e9d5ff, #c084fc);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .chat-header p {
+            font-size: 0.8rem;
+            color: #d9c9ff;
+        }
+
+        .status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 8px;
+            font-size: 0.75rem;
+            color: #c4b5fd;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            background-color: #4ade80;
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+            box-shadow: 0 0 6px #4ade80;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.4; transform: scale(0.8);}
+            100% { opacity: 1; transform: scale(1.2);}
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .message {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .user-message {
+            flex-direction: row-reverse;
+        }
+
+        .avatar {
+            width: 38px;
+            height: 38px;
+            background: rgba(139, 92, 246, 0.5);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(210, 170, 255, 0.6);
+        }
+
+        .bubble {
+            max-width: 75%;
+            padding: 12px 18px;
+            border-radius: 24px;
+            font-size: 0.95rem;
+            line-height: 1.45;
+            word-wrap: break-word;
+        }
+
+        .ai-message .bubble {
+            background: rgba(50, 30, 85, 0.7);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(167, 139, 250, 0.6);
+            color: #f3e8ff;
+            border-bottom-left-radius: 6px;
+        }
+
+        .user-message .bubble {
+            background: linear-gradient(135deg, #9333ea, #7e22ce);
+            color: white;
+            border-bottom-right-radius: 6px;
+            box-shadow: 0 4px 12px rgba(147, 51, 234, 0.3);
+        }
+
+        .chat-input-area {
+            padding: 18px 20px;
+            background: rgba(20, 8, 40, 0.5);
+            backdrop-filter: blur(8px);
+            border-top: 1px solid rgba(160, 120, 240, 0.4);
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+        }
+
+        textarea {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(170, 130, 250, 0.6);
+            border-radius: 32px;
+            padding: 12px 18px;
+            color: white;
+            font-size: 0.95rem;
+            resize: none;
+            outline: none;
+            font-family: inherit;
+        }
+
+        textarea:focus {
+            border-color: #c084fc;
+            box-shadow: 0 0 12px rgba(192, 132, 252, 0.4);
+            background: rgba(50, 30, 80, 0.6);
+        }
+
+        textarea::placeholder {
+            color: #b9a7f0;
+        }
+
+        button {
+            background: linear-gradient(145deg, #a855f7, #7c3aed);
+            border: none;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: 0.2s;
+            color: white;
+            font-size: 1.2rem;
+            box-shadow: 0 5px 12px rgba(126, 34, 206, 0.5);
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            background: linear-gradient(145deg, #c084fc, #9333ea);
+        }
+
+        button:active {
+            transform: scale(0.96);
+        }
+
+        .credit {
+            text-align: center;
+            font-size: 0.7rem;
+            padding: 8px;
+            background: rgba(0,0,0,0.3);
+            color: #bba6f0;
+        }
+
+        .chat-messages::-webkit-scrollbar {
+            width: 5px;
+        }
+        .chat-messages::-webkit-scrollbar-track {
+            background: #2e1a4a;
+            border-radius: 10px;
+        }
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: #a855f7;
+            border-radius: 10px;
+        }
+
+        @media (max-width: 550px) {
+            .chat-container { height: 95vh; }
+            .bubble { max-width: 85%; font-size: 0.85rem; }
+            .chat-header h1 { font-size: 1.4rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            <h1>✨ VeliuxAI</h1>
+            <p>By Fahri Develop</p>
+            <div class="status">
+                <span class="dot"></span> Online · Siap Membantu
+            </div>
+        </div>
+        <div class="chat-messages" id="chatMessages">
+            <div class="message ai-message">
+                <div class="avatar">🤖</div>
+                <div class="bubble">
+                    Halo! Saya <strong>VeliuxAI</strong>, asisten AI Anda. Ada yang bisa saya bantu hari ini?
+                </div>
+            </div>
+        </div>
+        <div class="chat-input-area">
+            <textarea id="userInput" placeholder="Ketik pesanmu di sini..." rows="1"></textarea>
+            <button id="sendBtn">➤</button>
+        </div>
+        <div class="credit">
+            ⚡ VeliuxAI | Powered by OpenAI
+        </div>
+    </div>
+
+    <script>
+        const chatMessages = document.getElementById("chatMessages");
+        const userInput = document.getElementById("userInput");
+        const sendBtn = document.getElementById("sendBtn");
+        let isWaiting = false;
+
+        function addMessage(content, isUser = false) {
+            const messageDiv = document.createElement("div");
+            messageDiv.className = `message ${isUser ? "user-message" : "ai-message"}`;
+            
+            const avatar = document.createElement("div");
+            avatar.className = "avatar";
+            avatar.innerText = isUser ? "👤" : "✨";
+            
+            const bubble = document.createElement("div");
+            bubble.className = "bubble";
+            bubble.innerText = content;
+            
+            messageDiv.appendChild(avatar);
+            messageDiv.appendChild(bubble);
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function showTypingIndicator() {
+            const typingDiv = document.createElement("div");
+            typingDiv.className = "message ai-message";
+            typingDiv.id = "typingIndicator";
+            const avatar = document.createElement("div");
+            avatar.className = "avatar";
+            avatar.innerText = "✨";
+            const typingBubble = document.createElement("div");
+            typingBubble.className = "bubble";
+            typingBubble.innerHTML = "🎤 VeliuxAI sedang mengetik...";
+            typingDiv.appendChild(avatar);
+            typingDiv.appendChild(typingBubble);
+            chatMessages.appendChild(typingDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function removeTypingIndicator() {
+            const indicator = document.getElementById("typingIndicator");
+            if (indicator) indicator.remove();
+        }
+
+        async function sendToOpenAI(userMessage) {
+            try {
+                const response = await fetch("/api/chat", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ message: userMessage })
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || "Gagal menghubungi server");
+                }
+                
+                const data = await response.json();
+                return data.reply;
+            } catch (error) {
+                console.error("Error:", error);
+                return `⚠️ Maaf, terjadi masalah: ${error.message}`;
+            }
+        }
+
+        async function handleSendMessage() {
+            if (isWaiting) return;
+            const message = userInput.value.trim();
+            if (message === "") return;
+            
+            isWaiting = true;
+            sendBtn.disabled = true;
+            userInput.disabled = true;
+            
+            addMessage(message, true);
+            userInput.value = "";
+            userInput.style.height = "auto";
+            
+            showTypingIndicator();
+            const aiReply = await sendToOpenAI(message);
+            removeTypingIndicator();
+            addMessage(aiReply, false);
+            
+            isWaiting = false;
+            sendBtn.disabled = false;
+            userInput.disabled = false;
+            userInput.focus();
+        }
+
+        sendBtn.addEventListener("click", handleSendMessage);
+        userInput.addEventListener("keypress", (e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                handleSendMessage();
+            }
+        });
+
+        userInput.addEventListener("input", function() {
+            this.style.height = "auto";
+            this.style.height = Math.min(this.scrollHeight, 120) + "px";
+        });
+
+        userInput.focus();
+    </script>
+</body>
+</html>
